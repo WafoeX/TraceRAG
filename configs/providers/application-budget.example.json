@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "currency": "CNY",
+  "unit": "per_million_tokens",
+  "note": "UNVERIFIED EXAMPLE, NOT LIVE PRICES. Supply an operator-audited file for each exact endpoint/model/role. Default application model calls fail closed. No implicit FX or tokenizer guesses.",
+  "profiles": [
+    {
+      "base_url": "https://api.openai.com/v1",
+      "role": "generation",
+      "model": "gpt-4o-mini",
+      "verified": false,
+      "input_rate": null,
+      "output_rate": null,
+      "input_token_upper_bound": null,
+      "output_token_upper_bound": null,
+      "request_byte_limit": null,
+      "price_source": null,
+      "limits_source": null,
+      "usage_source": null,
+      "checked_at": null
+    }
+  ]
+}

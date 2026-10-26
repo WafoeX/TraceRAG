@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TraceRAG · 文献与证据</title>
+<link rel="icon" href="data:,">
+<style>
+:root { color-scheme: dark; --bg:#0b1120; --panel:#111c30; --line:#2c3c55; --text:#e2e8f0; --muted:#9aafc8; --accent:#5eead4; }
+* { box-sizing:border-box; }
+[hidden] { display:none !important; }
+body { margin:0; background:var(--bg); color:var(--text); font:15px/1.6 system-ui,sans-serif; }
+header { padding:20px 28px; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:center; }
+h1,h2,h3,p { margin:0 0 10px; } h1 { font-size:24px; color:var(--accent); } h2 { font-size:18px; }
+small,.muted { color:var(--muted); } a { color:var(--accent); }
+.workspace { display:grid; grid-template-columns:340px minmax(0,1fr); min-height:calc(100vh - 100px); }
+aside { padding:20px; border-right:1px solid var(--line); }
+main { padding:24px; max-width:1000px; width:100%; margin:auto; }
+.card,.message { border:1px solid var(--line); background:var(--panel); border-radius:10px; padding:13px; margin:12px 0; overflow-wrap:anywhere; }
+.user { border-left:3px solid var(--accent); }
+button,input,textarea,select { font:inherit; border-radius:7px; padding:8px 10px; }
+button { border:1px solid var(--line); background:#23344f; color:var(--text); cursor:pointer; margin:4px 4px 0 0; }
+button:hover { border-color:var(--accent); } button:disabled { opacity:.5; cursor:wait; }
+input,textarea,select { width:100%; background:var(--bg); border:1px solid var(--line); color:var(--text); margin:6px 0; }
+input[type="checkbox"] { width:auto; margin-right:8px; }
+textarea { min-height:110px; resize:vertical; }
+#docList { max-height:32vh; overflow:auto; } #jobs { max-height:26vh; overflow:auto; font-size:13px; }
+#chat { min-height:260px; } #composer { display:flex; gap:10px; position:sticky; bottom:0; background:var(--bg); padding:12px 0; }
+#composer button { flex:none; } pre { white-space:pre-wrap; overflow-wrap:anywhere; font:inherit; margin:10px 0; }
+.sources pre { max-height:320px; overflow:auto; }
+.warning { color:#fcd34d; } .error { color:#fca5a5; } summary { cursor:pointer; color:var(--accent); }
+dialog { width:min(90vw,850px); max-height:85vh; background:var(--panel); color:var(--text); border:1px solid var(--accent); border-radius:12px; padding:24px; }
+@media(max-width:760px) { .workspace { grid-template-columns:1fr; } aside { border-right:0; border-bottom:1px solid var(--line); } header,main { padding:16px; } }
+</style>
+</head>
+<body>
+<header><div><h1>TraceRAG</h1><small>文献知识库 · 会话登录与知识库隔离 · 尚未完成生产部署验收</small></div><a href="/docs" target="_blank" rel="noopener">API 文档</a></header>
+<section id="loginPanel" class="card" style="max-width:440px;margin:40px auto">
+<h2>登录 TraceRAG</h2><p class="muted">账号由管理员开通，不开放注册。</p>
+<form id="loginForm"><label>用户名<input id="username" autocomplete="username" required maxlength="64"></label><label>密码<input id="password" type="password" autocomplete="current-password" required maxlength="128"></label><button id="loginBtn">登录</button><p id="loginError" role="alert"></p></form>
+</section>
+<div class="workspace" id="workspace" hidden>
+<aside>
+<p id="authName"></p><button id="logoutBtn" type="button">退出登录</button>
+<label>当前知识库<select id="librarySelect"></select></label>
+<form id="libraryForm"><input id="newLibrary" aria-label="新知识库名称" placeholder="创建知识库" maxlength="200" required><button>创建知识库</button><p id="libraryError" role="alert"></p></form>
+<h2>请求追踪</h2><button id="loadTraces" type="button">查看我的最近追踪</button><div id="traceList"></div>
+<h2>我的预算 <small>人民币 · 估算</small></h2><div id="budgetSummary" class="card" aria-live="polite"></div>
+<h2>我的文献</h2><p id="kbsub" class="muted">正在读取…</p><div id="docList"></div>
+<h2>入库任务</h2><small>排队 → 解析 → 向量化 → 完成。需要独立 worker。</small><div id="jobs" aria-live="polite"></div>
+<details><summary>上传 / 添加文献</summary>
+<form id="addform">
+<label>入库目标<select id="updateTarget"><option value="">新建文献</option></select></label>
+<label>文件（优先使用）<input id="docFile" type="file" accept=".txt,.md,.pdf"></label>
+<small>txt/md/pdf ≤10 MiB，PDF≤200页；暂无OCR。</small>
+<label>或粘贴文本：标题<input id="docTitle" maxlength="512" placeholder="文献标题"></label>
+<label>正文<textarea id="docContent" placeholder="粘贴原文"></textarea></label>
+<button id="addBtn" type="submit">提交入库任务</button><p id="uploadStatus" role="status"></p>
+</form></details>
+</aside>
+<main>
+<h2>围绕文献提问，回到证据核验</h2>
+<p class="muted">回答仅供检索参考，不提供医学结论。相关度高、编号合法都不代表证据充分，请核对实际上下文。</p>
+<div id="chat" aria-live="polite"></div>
+<label><input id="retainTrace" type="checkbox">仅本次同意保存问题、回答和上下文正文快照（7天）</label><p class="muted">默认仅记录追踪元数据，不保存正文；到期隐藏、管理员定期清理。删除文献会清除本账号已保存的全部追踪正文；不撤销供应商及浏览器已有副本。</p>
+<form id="composer"><input id="q" aria-label="问题" placeholder="文献的实验对象、主要发现与适用范围是什么？" required><button id="ask" type="submit">提问</button></form>
+</main>
+</div>
+<dialog id="evidenceDialog"><button id="closeEvidence">关闭</button><h3 id="evidenceTitle"></h3><p id="evidenceLocation"></p><a id="originalLink" target="_blank" rel="noopener" hidden>打开原文件 / 对应页</a><pre id="evidenceText"></pre></dialog>
+<dialog id="historyDialog"><button id="closeHistory">关闭</button><h3>文献版本历史</h3><div id="historyList"></div></dialog>
+<dialog id="traceDialog"><button id="closeTrace">关闭</button><h3>请求追踪 · 金额为估算，非供应商实扣</h3><pre id="traceText"></pre></dialog>
+<dialog id="feedbackDialog"><button id="closeFeedback" type="button">关闭</button>
+<h3>反馈与脱敏回归</h3><p class="muted">反馈是用户标记，不是语义裁决；只保存分类和可选引用编号，跟随追踪7天到期。下载文件无法远程撤回。</p>
+<form id="feedbackForm"><label><input type="checkbox" name="category" value="unhelpful">无帮助</label>
+<label><input type="checkbox" name="category" value="unsupported_citation">引用不支持</label>
+<label><input type="checkbox" name="category" value="outdated">内容过期</label>
+<label>引用编号（可选，限本次上下文）<input id="feedbackCitation" type="number" min="1" max="20"></label>
+<button id="saveFeedback" type="submit">保存反馈</button><button id="removeFeedback" type="button">撤回反馈</button></form>
+<p id="feedbackStatus" role="status"></p><button id="exportMetadata" type="button">下载仅元数据（默认）</button>
+<details id="regressionEditor"><summary>人工编辑完整回归样例</summary>
+<p class="warning">系统不保证自动匿名。请去除人名、单位、账号、密钥、链接及文献中的敏感细节；人工预期不等于已验证结论。正文草稿只在当前页面，不长期入库。</p>
+<button id="loadFeedbackSnapshot" type="button" disabled>载入已同意快照，供人工脱敏</button>
+<form id="regressionForm"><label>脱敏问题<textarea id="caseQuestion" maxlength="4000" required></textarea></label>
+<label>脱敏观察回答<textarea id="caseAnswer" maxlength="65536"></textarea></label>
+<label>脱敏上下文（JSON字符串数组，顺序对应[1]…；不含来源ID/标题字段）<textarea id="caseContexts" required>[]</textarea></label>
+<label>样例观察生成状态<select id="caseObserved"><option value="">请选择</option><option value="completed">completed</option><option value="failed">failed</option><option value="skipped">skipped</option></select></label>
+<label>预期编号范围<select id="caseRange"><option value="true">全部编号应合法</option><option value="false">应存在越界编号</option></select></label>
+<label>预期回答<select id="caseNonempty"><option value="true">应非空</option><option value="false">应为空</option></select></label>
+<label>预期生成状态<select id="caseExpectedStatus"><option value="completed">completed</option><option value="failed">failed</option><option value="skipped">skipped</option></select></label>
+<label>人工语义预期（离线脚本不会自动裁决）<textarea id="caseSemantics" maxlength="2000" required></textarea></label>
+<label><input id="caseReviewed" type="checkbox" required>仅本次：已人工编辑并检查脱敏，理解下载不可撤回、结构检查不等于语义支持</label>
+<button id="exportRegression" type="submit">确认并下载回归样例</button></form></details></dialog>
+<script>
+const $ = id => document.getElementById(id);
+let csrfToken = '', selectedLibrary = '', authEpoch = 0;
+let feedbackTrace = '', feedbackSnapshot = null, feedbackRequest = 0;
+function clearPrivateView() {
+  authEpoch++; $('chat').replaceChildren(); $('docList').replaceChildren(); $('jobs').replaceChildren(); $('budgetSummary').replaceChildren();
+  $('addform').reset(); $('uploadStatus').textContent = ''; $('q').value = '';
+  $('retainTrace').checked = false; $('traceList').replaceChildren(); $('traceText').textContent = ''; $('traceDialog').close();
+  $('evidenceDialog').close(); $('historyDialog').close();
+  $('feedbackDialog').close(); resetFeedback();
+  $('evidenceText').textContent = ''; $('evidenceTitle').textContent = ''; $('evidenceLocation').textContent = '';
+  $('originalLink').removeAttribute('href'); $('originalLink').hidden = true; $('historyList').replaceChildren();
+  const initial = node('option', '新建文献'); initial.value = ''; $('updateTarget').replaceChildren(initial);
+}
+function signedOut() {
+  clearPrivateView(); csrfToken = ''; selectedLibrary = ''; $('librarySelect').replaceChildren();
+  $('authName').textContent = ''; $('newLibrary').value = ''; $('libraryError').textContent = '';
+  $('workspace').hidden = true; $('loginPanel').hidden = false; $('password').value = '';
+}
+function node(tag, text, cls) {
+  const el = document.createElement(tag);
+  if (text !== undefined) el.textContent = String(text);
+  if (cls) el.className = cls;
+  return el;
+}
+function action(text, fn) {
+  const btn = node('button', text); btn.type = 'button';
+  btn.addEventListener('click', async () => {
+    btn.disabled = true;
+    try { await fn(); } catch (e) { window.alert(e.message); }
+    finally { btn.disabled = false; }
+  });
+  return btn;
+}
+async function request(url, options = {}) {
+  const epoch = authEpoch;
+  const scoped = url.startsWith('/documents') || url.startsWith('/query');
+  const privateRequest = scoped || url.startsWith('/knowledge-bases') || url.startsWith('/auth/me') || url.startsWith('/budget') || url.startsWith('/traces');
+  if (scoped) {
+    if (!selectedLibrary) throw new Error('请先创建或选择知识库');
+    url += (url.includes('?') ? '&' : '?') + 'knowledge_base_id=' + encodeURIComponent(selectedLibrary);
+  }
+  options = {...options, headers:{...(options.headers || {})}};
+  if (csrfToken && options.method && options.method !== 'GET') options.headers['X-CSRF-Token'] = csrfToken;
+  const res = await fetch(url, options);
+  if (privateRequest && epoch !== authEpoch) throw new Error('账号或知识库已变化，请重新操作');
+  if (res.status === 401 && !url.startsWith('/auth/login')) signedOut();
+  if (!res.ok) {
+    let detail = 'HTTP ' + res.status;
+    try { const data = await res.json(); if (typeof data.detail === 'string') detail = data.detail; } catch (_) {}
+    throw new Error(detail);
+  }
+  const data = res.status === 204 ? null : await res.json();
+  if (privateRequest && epoch !== authEpoch) throw new Error('账号或知识库已变化，请重新操作');
+  if (url.startsWith('/query') && data && typeof data === 'object') data.trace_id = res.headers.get('X-Trace-ID');
+  return data;
+}
+$('closeTrace').addEventListener('click', () => $('traceDialog').close());
+async function showTrace(id) {
+  const epoch = authEpoch;
+  $('traceText').textContent = '读取中…'; $('traceDialog').showModal();
+  try {
+    const data = await request('/traces/' + encodeURIComponent(id));
+    $('traceText').textContent = JSON.stringify(data, null, 2);
+  } catch (e) { if (epoch === authEpoch) $('traceText').textContent = '追踪不可用（可能已到期、删除或未保存）：' + e.message; }
+}
+async function loadTraces() {
+  const epoch = authEpoch;
+  try {
+    const rows = await request('/traces');
+    $('traceList').replaceChildren(...rows.map(t => {
+      const card = node('section', undefined, 'card');
+      card.append(node('small', t.trace_id + ' · 到期 ' + new Date(t.expires_at).toLocaleString() + (t.has_content ? ' · 含已同意的正文' : ' · 仅元数据')),
+        action('查看追踪', () => showTrace(t.trace_id)),
+        action('反馈 / 导出', () => openFeedback(t.trace_id)),
+        action('删除追踪', async () => { await request('/traces/' + encodeURIComponent(t.trace_id), {method:'DELETE'}); await loadTraces(); }));
+      return card;
+    }));
+    if (!rows.length) $('traceList').append(node('p', '暂无7天内的已保存追踪。'));
+  } catch (e) { if (epoch === authEpoch) $('traceList').textContent = e.message; }
+}
+$('loadTraces').addEventListener('click', loadTraces);
+function resetFeedback() {
+  feedbackRequest++; feedbackTrace = ''; feedbackSnapshot = null;
+  $('feedbackForm').reset(); $('regressionForm').reset(); $('caseContexts').value = '[]';
+  $('feedbackStatus').textContent = ''; $('loadFeedbackSnapshot').disabled = true;
+  $('regressionEditor').open = false;
+}
+$('closeFeedback').addEventListener('click', () => $('feedbackDialog').close());
+$('feedbackDialog').addEventListener('close', () => { if (!$('feedbackDialog').open) resetFeedback(); });
+async function openFeedback(id) {
+  resetFeedback(); const token = feedbackRequest; const epoch = authEpoch;
+  feedbackTrace = id; $('feedbackStatus').textContent = '读取中…';
+  if (!$('feedbackDialog').open) $('feedbackDialog').showModal();
+  try {
+    const [detail, saved] = await Promise.all([request('/traces/' + encodeURIComponent(id)), request('/traces/' + encodeURIComponent(id) + '/feedback')]);
+    if (token !== feedbackRequest || epoch !== authEpoch) return;
+    feedbackSnapshot = detail.snapshot;
+    $('loadFeedbackSnapshot').disabled = !feedbackSnapshot;
+    $('caseObserved').value = detail.metadata.generation_status || '';
+    for (const input of $('feedbackForm').querySelectorAll('[name="category"]')) input.checked = !!saved.feedback?.categories.includes(input.value);
+    $('feedbackCitation').value = saved.feedback?.citation_number ?? '';
+    $('feedbackStatus').textContent = saved.feedback ? '已有反馈，可更新或撤回；原追踪到期时间不变。' : '尚无反馈。先保存分类，再选择导出。';
+  } catch (e) { if (token === feedbackRequest && epoch === authEpoch) $('feedbackStatus').textContent = e.message; }
+}
+function feedbackURL() {
+  if (!feedbackTrace) throw new Error('请重新打开追踪反馈');
+  return '/traces/' + encodeURIComponent(feedbackTrace);
+}
+$('feedbackForm').addEventListener('submit', async event => {
+  event.preventDefault(); const token = feedbackRequest; const epoch = authEpoch;
+  try {
+    const categories = [...$('feedbackForm').querySelectorAll('[name="category"]:checked')].map(input => input.value);
+    if (!categories.length) throw new Error('至少选择一类反馈');
+    const citation_number = $('feedbackCitation').value === '' ? null : Number($('feedbackCitation').value);
+    const saved = await request(feedbackURL() + '/feedback', {method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({categories,citation_number})});
+    if (token !== feedbackRequest || epoch !== authEpoch) return;
+    $('feedbackStatus').textContent = '反馈已保存，随追踪到期：' + new Date(saved.expires_at).toLocaleString() + '。这是用户反馈，不是语义裁决。';
+  } catch (e) { if (token === feedbackRequest && epoch === authEpoch) $('feedbackStatus').textContent = e.message; }
+});
+$('removeFeedback').addEventListener('click', async () => {
+  const token = feedbackRequest; const epoch = authEpoch;
+  try {
+    await request(feedbackURL() + '/feedback', {method:'DELETE'});
+    if (token !== feedbackRequest || epoch !== authEpoch) return;
+    $('feedbackForm').reset(); $('feedbackStatus').textContent = '反馈已撤回；追踪与预算未改变。';
+  } catch (e) { if (token === feedbackRequest && epoch === authEpoch) $('feedbackStatus').textContent = e.message; }
+});
+function downloadJSON(data, filename) {
+  const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2) + '\n'], {type:'application/json'}));
+  const link = document.createElement('a'); link.href = url; link.download = filename;
+  document.body.append(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+async function feedbackExport(payload, filename) {
+  const token = feedbackRequest; const epoch = authEpoch;
+  try {
+    const data = await request(feedbackURL() + '/export', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)});
+    if (token !== feedbackRequest || epoch !== authEpoch) return;
+    downloadJSON(data, filename); $('feedbackStatus').textContent = '已下载到本机。分享前再次复核；删除追踪不能撤回下载文件。';
+  } catch (e) { if (token === feedbackRequest && epoch === authEpoch) $('feedbackStatus').textContent = e.message; }
+}
+$('exportMetadata').addEventListener('click', () => feedbackExport({mode:'metadata'}, 'tracerag-feedback-metadata.json'));
+$('loadFeedbackSnapshot').addEventListener('click', () => {
+  if (!feedbackSnapshot) return;
+  $('caseQuestion').value = feedbackSnapshot.question || '';
+  $('caseAnswer').value = feedbackSnapshot.answer || '';
+  $('caseContexts').value = JSON.stringify((feedbackSnapshot.contexts || []).map(c => c.content), null, 2);
+  $('caseReviewed').checked = false;
+});
+$('regressionForm').addEventListener('input', event => { if (event.target.id !== 'caseReviewed') $('caseReviewed').checked = false; });
+$('regressionForm').addEventListener('change', event => { if (event.target.id !== 'caseReviewed') $('caseReviewed').checked = false; });
+$('regressionForm').addEventListener('submit', async event => {
+  event.preventDefault();
+  try {
+    if (!$('caseReviewed').checked) throw new Error('需逐次人工确认脱敏');
+    const reviewed_case = {question:$('caseQuestion').value, answer:$('caseAnswer').value, contexts:JSON.parse($('caseContexts').value), observed_generation_status:$('caseObserved').value,
+      expected:{citation_range_valid:$('caseRange').value === 'true', answer_nonempty:$('caseNonempty').value === 'true', generation_status:$('caseExpectedStatus').value}, expected_semantics:$('caseSemantics').value, reviewed:true};
+    $('caseReviewed').checked = false;
+    await feedbackExport({mode:'regression', reviewed_case}, 'tracerag-regression.json');
+  } catch (e) { $('feedbackStatus').textContent = e.message; }
+});
+function message(role, text) {
+  const block = node('article', undefined, 'message ' + role);
+  block.append(node('small', role === 'user' ? '你' : 'TraceRAG'), node('pre', text));
+  $('chat').append(block); return block;
+}
+async function evidence(url) {
+  $('evidenceTitle').textContent = '读取库中原文切块';
+  $('evidenceText').textContent = '正在读取…'; $('originalLink').hidden = true;
+  $('evidenceLocation').textContent = ''; $('evidenceDialog').showModal();
+  try {
+    const c = await request(url);
+    $('evidenceTitle').textContent = c.document_title + ' · 文档 #' + c.document_id + ' · chunk ' + c.chunk_index;
+    $('evidenceText').textContent = c.content;
+    $('evidenceLocation').textContent = '逻辑文献 #' + (c.logical_id ?? '未知') + ' · v' + (c.version_number ?? '未知') + (c.page_number ? ' · PDF物理页 ' + c.page_number : ' · 无PDF页码映射');
+    $('originalLink').hidden = !c.original_url;
+    if (c.original_url) $('originalLink').href = c.original_url;
+  } catch (e) { $('evidenceText').textContent = '无法读取（文档可能已删除）：' + e.message; }
+}
+$('closeEvidence').addEventListener('click', () => $('evidenceDialog').close());
+$('closeHistory').addEventListener('click', () => $('historyDialog').close());
+function originalAnchor(url, text) {
+  const link = node('a', text); link.href = url; link.target = '_blank'; link.rel = 'noopener';
+  return link;
+}
+async function history(documentId) {
+  $('historyList').replaceChildren(node('p', '读取中…')); $('historyDialog').showModal();
+  try {
+    const versions = await request('/documents/' + documentId + '/versions');
+    $('historyList').replaceChildren(...versions.map(v => {
+      const card = node('section', undefined, 'card');
+      card.append(node('h3', 'v' + v.version_number + ' · ' + (v.active ? '当前使用' : '已归档')),
+        node('p', v.title + ' · 版本 #' + v.document_id),
+        node('small', v.file_hash ? 'SHA256 ' + v.file_hash : '历史原文件哈希未知'));
+      if (v.original_available) card.append(node('p'), originalAnchor('/documents/' + v.document_id + '/original', '打开此版本原文件'));
+      else card.append(node('p', '原文件不可用，未伪造恢复。', 'muted'));
+      return card;
+    }));
+  } catch (e) { $('historyList').replaceChildren(node('p', e.message, 'error')); }
+}
+function renderSources(block, citations, invalid) {
+  if (invalid && invalid.length) block.append(node('p', '警告：回答含无效引用编号 ' + invalid.join(', ') + '；不得视为有效来源。', 'warning'));
+  if (!citations || !citations.length) return;
+  const details = node('details', undefined, 'sources'); details.open = true;
+  details.append(node('summary', citations.length + ' 个实际上下文（编号合法 ≠ 语义支持）'));
+  for (const c of citations) {
+    const card = node('section', undefined, 'card');
+    card.append(node('h3', '[' + c.context_number + '] ' + c.document_title),
+      node('small', '文献 #' + (c.logical_id ?? '未知') + ' · v' + (c.version_number ?? '未知') + ' · 版本 #' + c.document_id + ' · chunk ' + c.chunk_index + ' · score ' + c.score),
+      node('p', '本次检索的原版本快照（不代表模型已成功使用）；' + (c.page_number ? 'PDF物理页 ' + c.page_number + '（非印刷页码）' : '无PDF页码映射') + '。更新不改写旧证据，删除不撤销历史快照。', 'muted'),
+      node('pre', c.content || c.snippet),
+      action('查看库中原文切块', () => evidence(c.evidence_url || '/documents/' + c.document_id + '/chunks/' + c.chunk_index)));
+    if (c.original_url) card.append(node('p'), originalAnchor(c.original_url, '打开原文件 / 对应页'));
+    details.append(card);
+  }
+  block.append(details);
+}
+$('composer').addEventListener('submit', async e => {
+  e.preventDefault(); if ($('ask').disabled) return;
+  const question = $('q').value.trim(); if (!question) return;
+  if (question.length > 4000) { message('bot', '问题最多4000字符'); return; }
+  const retain_trace_content = $('retainTrace').checked; $('retainTrace').checked = false;
+  $('q').value = ''; $('ask').disabled = true;
+  message('user', question); const block = message('bot', '检索与生成中…');
+  try {
+    // JSON avoids presenting a partial answer as a validated complete response.
+    const result = await request('/query/evidence', {
+      method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({question, retain_trace_content})
+    });
+    block.querySelector('pre').textContent = result.generation_status === 'failed'
+      ? '回答生成失败，未生成有效答案；以下保留检索证据，可稍后重试。'
+      : (result.answer || '模型返回空回答，未生成有效答案。');
+    if (result.warnings && result.warnings.length) block.append(node('p', '调用降级：' + result.warnings.join('；') + '（不代表检索证据已获语义验证）', 'warning'));
+    renderSources(block, result.citations, result.invalid_citation_numbers);
+    if (result.trace_id) block.append(node('small', 'trace_id: ' + result.trace_id), action('查看本次追踪', () => showTrace(result.trace_id)), action('反馈 / 导出', () => openFeedback(result.trace_id)));
+  } catch (err) { block.querySelector('pre').textContent = '请求失败：' + err.message; block.classList.add('error'); }
+  finally { $('ask').disabled = false; if (csrfToken) await loadBudget(); }
+});
+async function loadDocuments() {
+  const epoch = authEpoch;
+  try {
+    const docs = await request('/documents/catalog');
+    $('kbsub').textContent = docs.length + ' 篇文献 · ' + docs.reduce((n,d) => n+d.chunks,0) + ' 个切块';
+    const selected = $('updateTarget').value;
+    const choices = [node('option', '新建文献')]; choices[0].value = '';
+    for (const d of docs) { const option = node('option', '更新 ' + d.title + '（v' + (d.version_number ?? 1) + '）'); option.value = String(d.id); choices.push(option); }
+    if (selected && !docs.some(d => String(d.id) === selected)) {
+      const stale = node('option', '所选版本已变化，请重新选择（不会静默新建）'); stale.value = selected; choices.push(stale);
+    }
+    $('updateTarget').replaceChildren(...choices); $('updateTarget').value = selected;
+    const cards = docs.map(d => {
+      const card = node('article', undefined, 'card');
+      card.append(node('strong', d.title), node('p', (d.source || '文本') + ' · ' + d.chunks + ' chunks'),
+        node('small', '文献 #' + (d.logical_id ?? '未知') + ' · v' + (d.version_number ?? 1) + ' · ' + (d.created_at ? new Date(d.created_at).toLocaleString() : '')),
+        action('更新此文献', () => {
+          $('updateTarget').value = String(d.id); $('addform').parentElement.open = true;
+          $('addform').scrollIntoView({block:'nearest'});
+        }),
+        action('版本历史', () => history(d.id)),
+        action('删除文献', async () => {
+          if (!window.confirm('删除整篇文献的全部版本、原文件及切块？历史回答快照不会被撤销。')) return;
+          await request('/documents/' + d.id, {method:'DELETE'}); await refresh();
+        }));
+      return card;
+    });
+    $('docList').replaceChildren(...cards);
+  } catch (e) { if (epoch === authEpoch) $('kbsub').textContent = '文献列表不可用：' + e.message; }
+}
+const states = {queued:'排队',parsing:'解析中',embedding:'向量化中',completed:'完成',failed:'失败'};
+async function loadJobs() {
+  const epoch = authEpoch;
+  try {
+    const jobs = await request('/documents/jobs');
+    const cards = jobs.map(j => {
+      const card = node('article', undefined, 'card');
+      card.append(node('strong', '#' + j.id + ' ' + j.title), node('p', (states[j.state] || j.state) + ' · 尝试 ' + j.attempts));
+      if (j.error_code) card.append(node('p', j.error_code, 'error'));
+      if (j.state === 'failed') card.append(
+        action('重试', async () => { await request('/documents/jobs/' + j.id + '/retry', {method:'POST'}); await refresh(); }),
+        action('丢弃原始数据', async () => { await request('/documents/jobs/' + j.id, {method:'DELETE'}); await refresh(); })
+      );
+      return card;
+    });
+    $('jobs').replaceChildren(...cards);
+  } catch (e) { if (epoch === authEpoch) $('jobs').replaceChildren(node('p', '任务列表不可用：' + e.message, 'error')); }
+}
+async function loadBudget() {
+  const epoch = authEpoch;
+  try {
+    const data = await request('/budget');
+    const amount = value => String(value).replace(/(\.\d*?[1-9])0+$|\.0+$/, '$1');
+    const account = data.account;
+    if (!account) { $('budgetSummary').replaceChildren(node('p', '预算未分配：请联系管理员。金额为人民币估算，非实扣。', 'warning')); return; }
+    const lines = [node('p', '累计额度 ¥' + amount(account.limit_cny)),
+      node('p', '已结算估算 ¥' + amount(account.estimated_spent_cny)),
+      node('p', '预占待结算 ¥' + amount(account.held_cny)),
+      node('p', '可用估算 ¥' + amount(account.available_cny)),
+      node('small', '非供应商实扣；超时预占不自动退款。')];
+    if (account.blocked) lines.push(node('p', '预算暂停，需管理员核账。', 'warning'));
+    if (data.shared_status !== 'available') lines.push(node('p', '共享预算状态：' + data.shared_status + '，可能限制模型调用。', 'warning'));
+    const unknown = data.reservations.filter(row => row.status === 'unknown');
+    if (unknown.length) lines.push(node('p', '最近20笔中 ' + unknown.length + ' 笔费用未知，保留预占待核账。', 'warning'));
+    $('budgetSummary').replaceChildren(...lines);
+  } catch (err) { if (epoch === authEpoch) $('budgetSummary').replaceChildren(node('p', '预算账本不可用：' + err.message, 'error')); }
+}
+async function refresh() { await Promise.all([loadDocuments(), loadJobs(), loadBudget()]); }
+$('addform').addEventListener('submit', async e => {
+  e.preventDefault(); $('addBtn').disabled = true; $('uploadStatus').textContent = '提交中…';
+  try {
+    let job; const file = $('docFile').files[0]; const target = $('updateTarget').value;
+    if (file) {
+      if (file.size > 10*1024*1024) throw new Error('文件超过10 MiB');
+      const body = new FormData(); body.append('file', file);
+      job = await request(target ? '/documents/' + target + '/updates/upload' : '/documents/jobs/upload', {method:'POST', body});
+    } else {
+      const title = $('docTitle').value.trim(), content = $('docContent').value;
+      if (!title || !content.trim()) throw new Error('请选择文件，或填写标题与正文');
+      job = await request(target ? '/documents/' + target + '/updates' : '/documents/jobs', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({title,content})});
+    }
+    $('uploadStatus').textContent = '任务 #' + job.id + ' · ' + (states[job.state] || job.state) + '（相同字节复用已有任务）';
+    $('addform').reset(); await refresh();
+  } catch (err) { $('uploadStatus').textContent = '提交失败：' + err.message; }
+  finally { $('addBtn').disabled = false; }
+});
+async function loadLibraries(preferred = '') {
+  const rows = await request('/knowledge-bases');
+  const options = rows.map(row => { const option = node('option', row.name); option.value = String(row.id); return option; });
+  $('librarySelect').replaceChildren(...options);
+  let next = options.length ? options[0].value : '';
+  if (options.some(option => option.value === preferred)) next = preferred;
+  if (next !== selectedLibrary) authEpoch++;
+  selectedLibrary = next; $('librarySelect').value = selectedLibrary;
+  if (selectedLibrary) await refresh(); else { $('kbsub').textContent = '请先创建知识库'; await loadBudget(); }
+}
+async function signedIn(user) {
+  clearPrivateView(); csrfToken = user.csrf_token; $('authName').textContent = '当前账号：' + user.username;
+  $('password').value = ''; $('loginError').textContent = '';
+  $('workspace').hidden = false; $('loginPanel').hidden = true; await loadLibraries();
+}
+$('loginForm').addEventListener('submit', async e => {
+  e.preventDefault(); $('loginBtn').disabled = true;
+  try { await signedIn(await request('/auth/login', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username:$('username').value,password:$('password').value})})); }
+  catch (err) { $('loginError').textContent = err.message; $('password').value = ''; }
+  finally { $('loginBtn').disabled = false; }
+});
+$('logoutBtn').addEventListener('click', async () => {
+  try { await request('/auth/logout', {method:'POST'}); signedOut(); }
+  catch (err) { $('libraryError').textContent = err.message; }
+});
+$('libraryForm').addEventListener('submit', async e => {
+  e.preventDefault(); $('libraryError').textContent = '';
+  try {
+    const created = await request('/knowledge-bases', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name:$('newLibrary').value})});
+    clearPrivateView(); await loadLibraries(String(created.id)); $('newLibrary').value = '';
+  } catch (err) { $('libraryError').textContent = err.message; }
+});
+$('librarySelect').addEventListener('change', async () => { const value = $('librarySelect').value; clearPrivateView(); selectedLibrary = value; await refresh(); });
+async function poll() { if (csrfToken && selectedLibrary) await refresh(); window.setTimeout(poll, 3000); }
+(async () => { try { await signedIn(await request('/auth/me')); } catch (_) { signedOut(); } poll(); })();
+</script>
+</body>
+</html>

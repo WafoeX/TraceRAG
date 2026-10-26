@@ -1,0 +1,3 @@
+# Optional evaluation environment only; do not merge into application dependencies.
+# Tested with Python 3.12.13. Full resolved versions: deepeval.freeze.txt.
+deepeval==4.3.1

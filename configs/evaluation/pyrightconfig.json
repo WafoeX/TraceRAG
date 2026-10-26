@@ -1,0 +1,7 @@
+{
+  "pythonVersion": "3.12",
+  "venvPath": "/tmp",
+  "venv": "budgetrag-deepeval-v1",
+  "extraPaths": ["../.."],
+  "include": ["../../scripts/replay_scifact_deepeval.py"]
+}

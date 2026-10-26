@@ -1,0 +1,152 @@
+{
+  "schema_version": 1,
+  "selection": "Purposeful diagnostic sample selected after inspecting existing AI reviews; NOT random, held-out, or an error-rate estimate.",
+  "review_kind": "main_assistant_ai_attribution",
+  "cases": [
+    {
+      "query_id": "0",
+      "pilot_role": "control",
+      "layer": "control",
+      "mechanism": "irrelevant_context_safe_abstention",
+      "certainty": "high_for_provided_context_only",
+      "diagnosis": "四个来源主题不涉及零维生物材料的诱导性；两组拒答合理。没有证明整个语料没有答案，也没有证明检索器漏召回某个已知证据。",
+      "missing_conditions": ["0-dimensional biomaterials 的 inductive properties"],
+      "desired_behavior": "保持INSUFFICIENT，明确上下文缺口；不为减少拒答而补入常识。",
+      "resume_lesson": "合理拒答是质量控制，不是所有查询都必须给肯定答案。",
+      "anchors": [{"document_id": "20101846", "quote": "Homogeneously dispersed multimetal oxygen-evolving catalysts", "meaning": "实际来源主题的一个例子；单凭此标题不证明全部语料无答案。"}]
+    },
+    {
+      "query_id": "14",
+      "pilot_role": "ambiguity",
+      "layer": "evaluation",
+      "mechanism": "mechanistic_inference_vs_direct_substrate_claim",
+      "certainty": "interpretation_dependent",
+      "diagnosis": "NT5C2酶活增加、核苷类似物失活与6MP耐药有直接文本依据；把它解释为6MP原型药的直接酶底物实验则证据不足。不能反过来规定凡无直接生化实验一律NEI，或把初审的严格口径当唯一科学真值。",
+      "missing_conditions": ["metabolizes 指药物相关失活作用，还是原型6MP直接底物反应"],
+      "desired_behavior": "区分已报告的耐药/代谢关联与未展示的直接底物测定，标明解释边界；不强制一个唯一标签来制造改善。",
+      "resume_lesson": "先定义判分命题，再优化生成；评审AI也可能过严。",
+      "anchors": [{"document_id": "6421792", "quote": "NT5C2 mutant proteins show increased nucleotidase activity in vitro and conferred resistance to chemotherapy with 6-mercaptopurine and 6-thioguanine", "meaning": "支持酶活/耐药方向，不自动等同直接6MP底物周转实验。"}]
+    },
+    {
+      "query_id": "24",
+      "pilot_role": "target",
+      "layer": "generation",
+      "mechanism": "time_horizon_and_endpoint_substitution",
+      "certainty": "high_for_inference_gap",
+      "diagnosis": "两组用数据截止时74%反应持续，去反驳未指定未来期限的90%将进展；还把反应未持续近似为进展。数字正确不代表推理成立，附加observed follow-up限定后不能再无条件反驳原命题。",
+      "missing_conditions": ["将进展的时间范围", "未持续反应与疾病进展是否等价"],
+      "desired_behavior": "不由有限随访外推出终生进展比例；报告74% ongoing的原范围，并说明原命题证据不足。",
+      "resume_lesson": "引用正确的数字仍可能产生错误结论；需要检查时间、分母与终点。",
+      "anchors": [{"document_id": "3471191", "quote": "Overall, 74% (152/205) of responses were ongoing at the time of data cutoff", "meaning": "是截止时状态，不是无期限未来的进展概率。"}]
+    },
+    {
+      "query_id": "35",
+      "pilot_role": "target",
+      "layer": "generation",
+      "mechanism": "combined_intervention_attribution_and_reverse_inference",
+      "certainty": "high_for_inference_gap",
+      "diagnosis": "联合叶酸/B6/B12治疗降低同型半胱氨酸，不足以单独识别B12缺乏的方向效应；补充有效也不能无条件反推缺乏相反。其他来源的治疗建议并未隔离这一作用。",
+      "missing_conditions": ["B12单独缺乏的证据", "联合干预中各成分的独立效应"],
+      "desired_behavior": "把联合治疗结果与B12单因子缺乏断言分开；可陈述方向一致性，不能因此给出无条件REFUTE。",
+      "resume_lesson": "相关研究命中，不等于命题的因果变量已经被识别。",
+      "anchors": [{"document_id": "33409100", "quote": "a daily capsule containing 40 mg of folic acid, 100 mg of pyridoxine hydrochloride (vitamin B6), and 2 mg of cyanocobalamin (vitamin B12)", "meaning": "实际是三成分干预而非单独B12缺乏实验。"}]
+    },
+    {
+      "query_id": "37",
+      "pilot_role": "control",
+      "layer": "evaluation",
+      "mechanism": "reference_omits_explicit_directional_evidence",
+      "certainty": "high_for_textual_entailment",
+      "diagnosis": "与q35不同，提供的另一篇摘要明确把低B6摄入列为高同型半胱氨酸原因。原参考INSUFFICIENT遗漏了这句，不能为了增加克制而把合理反驳也改成拒答。",
+      "missing_conditions": [],
+      "desired_behavior": "保留有直接方向证据的REFUTE，引用低B6摄入那句，而非仅依赖联合干预；不要求必须有独立RCT才允许回答。",
+      "resume_lesson": "反例保护：降低幻觉不能靠一律拒答。",
+      "anchors": [{"document_id": "12810152", "quote": "Hyperhomocysteinemia is caused by genetic and lifestyle influences, including low intakes of folate and vitamin B6.", "meaning": "对当前方向断言有明确反向文本证据。"}]
+    },
+    {
+      "query_id": "44",
+      "pilot_role": "control",
+      "layer": "context_boundary",
+      "mechanism": "local_document_lacks_needed_result_not_chunk_truncation",
+      "certainty": "high_for_this_document_not_entire_corpus",
+      "diagnosis": "已检索HNF4A文档在本地corpus中仅有研究背景，全部内容已在唯一chunk中发送。缺少14岁发病风险不能直接归咎top4截断；未证明整个语料没有别的证据。",
+      "missing_conditions": ["14岁前糖尿病发病风险结果"],
+      "desired_behavior": "保持有依据的INSUFFICIENT，说明缺失结果；不把完整论文中可能存在的信息补进本地上下文。",
+      "resume_lesson": "故障归因要追到原始数据，不能看见信息缺失就盲目增大chunk或top_k。",
+      "corpus_probe": {"document_id": "56893404", "expected_chunk_count": 1, "full_document_in_both_contexts": true},
+      "anchors": [{"document_id": "56893404", "quote": "by studying birthweight and the incidence of neonatal hypoglycaemia", "meaning": "背景介绍围产期研究，未提供14岁风险。"}]
+    },
+    {
+      "query_id": "61",
+      "pilot_role": "ambiguity",
+      "layer": "evaluation",
+      "mechanism": "individual_infectiousness_vs_modelled_population_incidence",
+      "certainty": "interpretation_dependent",
+      "diagnosis": "A判NEI、B判间接支持，但两组实际上下文顺序与请求完全相同。人群模型预测新发感染减少与个体感染性不是同一测量；差异不能归因重排。",
+      "missing_conditions": ["infectiveness的操作性定义", "模型预测与实测的区别", "人群发病率与个体感染性的区别"],
+      "desired_behavior": "明确支持的是模型下人群传播结局；若按个体感染性解释则保留证据不足，不把模型结果说成实测。",
+      "resume_lesson": "同输入也会生成不同结论，单次输出差异不是因果证据。",
+      "anchors": [{"document_id": "13899137", "quote": "HIV incidence would be 35% to 54% lower 8 y after the introduction of ART", "meaning": "这里的结局是模型中的HIV incidence。"}]
+    },
+    {
+      "query_id": "81",
+      "pilot_role": "target",
+      "layer": "generation",
+      "mechanism": "headline_scope_contradicts_acknowledged_method_gap",
+      "certainty": "high_for_literal_scope_gap_not_clinical_falsity",
+      "diagnosis": "两组承认只有knockdown而非明确acute ablation，却以Supported回应完整原命题；前体数量也从生存/增殖推断而来。问题是把较窄支持偷换成完整命题，而不是已经证明生物学断言为假。",
+      "missing_conditions": ["acute ablation与knockdown的对应依据", "前体数量的明确结果"],
+      "desired_behavior": "将knockdown降低增殖作为有支持的子命题；完整原命题的结论与未建立条件保持一致，不用caveat掩盖范围替换。",
+      "resume_lesson": "免责声明不应成为不受证据约束的肯定标题的通行证。",
+      "anchors": [{"document_id": "38919140", "quote": "the decreased radial precursor proliferation and differentiation observed upon Snail knockdown", "meaning": "直接结果对应knockdown及增殖/分化。"}]
+    },
+    {
+      "query_id": "96",
+      "pilot_role": "target",
+      "layer": "generation",
+      "mechanism": "unsupported_external_embellishment_in_otherwise_safe_answer",
+      "certainty": "high_for_citation_scope",
+      "diagnosis": "两组同上下文且均合理拒答，但B补入Algeria属北非的地理常识并挂[1]，所给来源并无此信息。事实可能真实，仍不等于该引用支持它；这是生成污染而非重排收益。",
+      "missing_conditions": ["Algeria地理分类在给定来源中的依据", "最大来源国排名"],
+      "desired_behavior": "保持INSUFFICIENT及来源中确有的SSA统计，删除未由给定证据支持的地理补充，或明确它不来自这些来源；本实验要求不引入外部知识。",
+      "resume_lesson": "答案总体结论正确，也可能夹带引用不支持的细节。",
+      "anchors": [{"document_id": "14500725", "quote": "10,819 physicians were born or trained in 28 SSA countries", "meaning": "支持样本统计，不支持Algeria分类或最大来源排名。"}]
+    },
+    {
+      "query_id": "98",
+      "pilot_role": "ambiguity",
+      "layer": "evaluation",
+      "mechanism": "endpoint_identity_and_statistical_strength",
+      "certainty": "interpretation_dependent",
+      "diagnosis": "来源区分apo(a) FCR上升24.6%的趋势与LDL-apoB FCR上升80.4%。参考要点不能串用这两个终点；tended不是统计显著或人群普遍效应。两组均保留趋势限定，不能直接当作确定生成失败。",
+      "missing_conditions": ["趋势是否足以对一般性断言给REFUTE", "apo(a)与LDL-apoB的终点边界"],
+      "desired_behavior": "准确保留apo(a)、24.6%、tended及研究范围；如判观察方向反向，明确只限该研究，不能改说已显著证明普遍增加。",
+      "resume_lesson": "科学评测要核对终点和证据强度，不是只核对数字。",
+      "anchors": [{"document_id": "6540064", "quote": "The FCR of apo(a) tended to increase (24.6%) without any change in apo(a) PR.", "meaning": "不能换成LDL-apoB或显著升高。"}]
+    },
+    {
+      "query_id": "109",
+      "pilot_role": "control",
+      "layer": "generation",
+      "mechanism": "anatomic_scope_substitution",
+      "certainty": "high_for_missing_localization_in_supplied_text",
+      "diagnosis": "A肯定、B拒答；共同关键来源说明adipose macrophages被激活，并在brown adipose tissue产生下游效应，不明确巨噬细胞本身在BAT。B对完整原命题的谨慎可作为控制；不能仅因参考SUPPORT就判B退步。",
+      "missing_conditions": ["被激活的巨噬细胞是否明确位于brown adipose tissue"],
+      "desired_behavior": "保留一般adipose macrophages快速替代激活的支持，同时区分效应器细胞所在位置与受影响组织；完整BAT定位证据缺口不隐去。",
+      "resume_lesson": "实体关系对齐比主题词命中更接近真正的答案质量。",
+      "anchors": [{"document_id": "4319174", "quote": "Exposure to cold temperature rapidly promoted alternative activation of adipose tissue macrophages, which secrete catecholamines to induce thermogenic gene expression in brown adipose tissue and lipolysis in white adipose tissue.", "meaning": "句子区分macrophages与其作用的brown/white组织。"}]
+    },
+    {
+      "query_id": "119",
+      "pilot_role": "ambiguity",
+      "layer": "evaluation",
+      "mechanism": "class_quantifier_and_verdict_extraction_ambiguity",
+      "certainty": "high_for_scoring_ambiguity",
+      "diagnosis": "两组都已有关键三环类meta分析。A原文是Refuted as stated (at least for tricyclic antidepressants); insufficient for all antidepressants broadly，初审却提取INSUFFICIENT；B提取REFUTE。这不能解释为新版才找到了证据，或确定的回答改善。原句泛称也不能未经说明强化成所有药物全称。",
+      "missing_conditions": ["antidepressants泛称的量词/药物类别范围", "混合标题如何提取唯一立场"],
+      "desired_behavior": "提供唯一且带明确范围的结论；陈述TCA减轻症状的证据，不扩展到所有抗抑郁药；避免仅因标题提取方式不同获得提升。",
+      "resume_lesson": "要排除评审抽取口径制造的伪提升，不能把每个+1都当成果。",
+      "anchors": [{"document_id": "14606752", "quote": "Tricyclics were also more likely to reduce the intensity of headaches by at least 50%", "meaning": "关键TCA证据在两组上下文里都存在。"}]
+    }
+  ]
+}

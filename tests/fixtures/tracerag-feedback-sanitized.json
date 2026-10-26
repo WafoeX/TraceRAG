@@ -1,0 +1,13 @@
+{
+  "schema_version": "tracerag-regression-v1",
+  "feedback": {"categories": ["unsupported_citation"], "citation_number": 1},
+  "case": {
+    "question": "What was measured in the synthetic study?",
+    "answer": "The synthetic study measured cells [1].",
+    "contexts": ["A synthetic study measured cells; no causal conclusion was established."],
+    "observed_generation_status": "completed",
+    "expected": {"citation_range_valid": true, "answer_nonempty": true, "generation_status": "completed"},
+    "expected_semantics": "A human reviewer must verify that the answer does not assert causation.",
+    "reviewed": true
+  }
+}

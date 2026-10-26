@@ -1,0 +1,62 @@
+Acme Cloud — Frequently Asked Questions
+(Sample content for RAG demonstration. Fictional product.)
+
+PLANS & PRICING
+
+Q: What plans does Acme Cloud offer?
+A: There are three plans. Starter is free and includes 1 project, 1 GB of
+storage, and community support. Pro is $29 per user per month and adds unlimited
+projects, 100 GB of storage, priority email support, and the full API. Enterprise
+is custom-priced and adds SSO, a dedicated support engineer, a 99.9% uptime SLA,
+and on-premise deployment options.
+
+Q: Can I change plans at any time?
+A: Yes. Upgrades take effect immediately and are prorated for the current billing
+period. Downgrades take effect at the start of the next billing cycle so you keep
+paid features until then.
+
+Q: Do you offer discounts?
+A: Annual billing saves two months compared to monthly. We also offer 50% off for
+registered nonprofits and free Pro access for accredited students.
+
+BILLING & CANCELLATION
+
+Q: How do I cancel?
+A: Cancel any time from Settings > Billing. Cancellation stops future charges; the
+current period is not refunded except where local law requires otherwise.
+
+Q: What payment methods are accepted?
+A: All major credit cards and, on annual Enterprise plans, bank transfer (ACH and
+SEPA). Invoicing is available for Enterprise customers.
+
+DATA & SECURITY
+
+Q: Where is my data stored?
+A: Data is stored in SOC 2 Type II certified data centers. You can choose a US or
+EU region at project creation. The region cannot be changed after creation.
+
+Q: Can I export my data?
+A: Yes. A full export (JSON or CSV) is available from the dashboard at any time,
+on every plan including the free tier. There is no lock-in.
+
+Q: Is my data encrypted?
+A: Data is encrypted in transit (TLS 1.2+) and at rest (AES-256). Customer-managed
+encryption keys are available on the Enterprise plan.
+
+API & LIMITS
+
+Q: Are there API rate limits?
+A: The free plan allows 60 requests per minute. Pro allows 600 per minute.
+Enterprise limits are negotiated per contract. Exceeding the limit returns HTTP
+429; back off and retry with exponential delay.
+
+Q: Do you have webhooks?
+A: Yes. Webhooks are available on Pro and Enterprise and can be configured per
+project. Failed deliveries are retried for up to 24 hours.
+
+SUPPORT
+
+Q: How do I reach support?
+A: Free users get community and email support. Pro users get priority email with a
+four-business-hour first response. Enterprise users get 24/7 support and a private
+Slack channel with a dedicated engineer.

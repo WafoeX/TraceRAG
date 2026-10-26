@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "currency": "CNY",
+  "unit": "per_million_tokens",
+  "note": "OFFLINE TEST FIXTURE. Fictional rates and bounds, never live pricing.",
+  "profiles": [
+    {"base_url":"https://offline.invalid/v1","role":"embedding","model":"fixture-embedding","verified":true,"input_rate":"1","output_rate":"0","input_token_upper_bound":10000,"output_token_upper_bound":0,"request_byte_limit":100000,"price_source":"synthetic test rate","limits_source":"synthetic whole-request bound","usage_source":"synthetic SDK response","checked_at":"fixture"},
+    {"base_url":"https://offline.invalid/v1","role":"generation","model":"fixture-chat","verified":true,"input_rate":"1","output_rate":"2","input_token_upper_bound":10000,"output_token_upper_bound":4096,"request_byte_limit":100000,"price_source":"synthetic test rate","limits_source":"synthetic whole-request bound","usage_source":"synthetic SDK response","checked_at":"fixture"},
+    {"base_url":"https://offline.invalid/v1","role":"llm_rerank","model":"fixture-chat","verified":true,"input_rate":"1","output_rate":"2","input_token_upper_bound":10000,"output_token_upper_bound":4096,"request_byte_limit":100000,"price_source":"synthetic test rate","limits_source":"synthetic whole-request bound","usage_source":"synthetic SDK response","checked_at":"fixture"}
+  ]
+}

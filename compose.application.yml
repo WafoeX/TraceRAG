@@ -1,0 +1,96 @@
+# Dedicated local application deployment. Never reuse experiment DB/volumes.
+# Always pass --env-file explicitly; see deploy/application.env.example.
+x-application: &application
+  image: tracerag-application:local
+  build: .
+  environment: &application-env
+    DATABASE_URL: >-
+      postgresql+psycopg://tracerag@db:5432/${TRACERAG_DB_NAME:-tracerag_application}
+    PGPASSWORD: ${TRACERAG_DB_PASSWORD:?provide a dedicated DB password}
+    OPENAI_API_KEY: ${TRACERAG_MODEL_KEY:?set model key or offline sentinel}
+    EMBEDDING_DIM: ${TRACERAG_EMBEDDING_DIM:-1536}
+    RUN_DB_INIT: "false"
+    APPLICATION_STARTUP_CHECK: "true"
+    SESSION_COOKIE_SECURE: ${TRACERAG_COOKIE_SECURE:-true}
+    APPLICATION_PRICING_FILE: /app/application-pricing.json
+  depends_on:
+    db:
+      condition: service_healthy
+  init: true
+  stop_grace_period: 40s
+  volumes:
+    - runtime:/app/runs
+    - type: bind
+      source: >-
+        ${TRACERAG_PRICING_FILE:-./configs/providers/application-budget.example.json}
+      target: /app/application-pricing.json
+      read_only: true
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: tracerag
+      POSTGRES_DB: ${TRACERAG_DB_NAME:-tracerag_application}
+      POSTGRES_PASSWORD: ${TRACERAG_DB_PASSWORD:?set dedicated DB password}
+    volumes:
+      - application-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U tracerag -d "$$POSTGRES_DB"']
+      interval: 3s
+      timeout: 3s
+      retries: 20
+  api:
+    <<: *application
+    ports:
+      - "127.0.0.1:${TRACERAG_HTTP_PORT:-18000}:8000"
+    healthcheck:
+      test:
+        - CMD
+        - /app/.venv/bin/python
+        - -c
+        - >-
+          import urllib.request;
+          urllib.request.urlopen('http://127.0.0.1:8000/ready', timeout=5)
+      interval: 10s
+      timeout: 6s
+      retries: 3
+  worker:
+    <<: *application
+    command: [/app/.venv/bin/python, -m, app.worker]
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          /app/.venv/bin/python -m scripts.manage_application_database check
+          --database-url "$$DATABASE_URL" --embedding-dim "$$EMBEDDING_DIM"
+      interval: 15s
+      timeout: 8s
+      retries: 3
+  tools:
+    <<: *application
+    profiles: [maintenance]
+    entrypoint: [/app/.venv/bin/python, -m, scripts.manage_application_database]
+    command: [plan]
+  db-tools:
+    image: pgvector/pgvector:pg16
+    profiles: [maintenance]
+    environment:
+      PGHOST: db
+      PGPORT: "5432"
+      PGUSER: tracerag
+      PGPASSWORD: ${TRACERAG_DB_PASSWORD:?provide a dedicated DB password}
+      PGDATABASE: >-
+        ${TRACERAG_TOOLS_DATABASE:-${TRACERAG_DB_NAME:-tracerag_application}}
+    depends_on:
+      db:
+        condition: service_healthy
+    entrypoint: [bash, /scripts/scripts/application_backup.sh]
+    command: [plan]
+    volumes:
+      - ./scripts/application_backup.sh:/scripts/scripts/application_backup.sh:ro
+      - ./deploy/restore-quarantine.sql:/scripts/deploy/restore-quarantine.sql:ro
+      - ${TRACERAG_BACKUP_DIR:?set private backup directory}:/backups
+volumes:
+  application-data:
+  runtime:

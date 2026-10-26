@@ -1,0 +1,20 @@
+line-length = 100
+target-version = "py312"
+
+[lint]
+# pycodestyle, pyflakes, isort, warnings, pyupgrade, bugbear, comprehensions, simplify
+select = ["E", "F", "I", "W", "UP", "B", "C4", "SIM"]
+
+[lint.flake8-bugbear]
+# FastAPI's dependency-injection markers are meant to be called in argument
+# defaults — they are immutable, so exempt them from B008.
+extend-immutable-calls = [
+    "fastapi.Depends",
+    "fastapi.File",
+    "fastapi.Query",
+    "fastapi.Form",
+    "fastapi.Header",
+    "fastapi.Cookie",
+    "fastapi.Body",
+    "fastapi.Path",
+]

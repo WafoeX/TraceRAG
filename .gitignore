@@ -1,0 +1,56 @@
+__pycache__/
+*.py[cod]
+.env
+.env.*
+!.env.example
+.venv/
+venv/
+env/
+.pytest_cache/
+.test-cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+.DS_Store
+.idea/
+.vscode/
+
+# Large sample docs are downloaded on demand, never committed
+examples/_large/
+
+# Baseline/experiment raw responses may contain sensitive document text.
+/runs/
+
+# Local browser traces/snapshots can contain private document text.
+/.playwright-cli/
+
+# Local deployment credentials and full-database backups are sensitive.
+/deploy/*.env
+/.application-backups/
+*.dump
+*.dump.sha256
+
+# Private job-search/interview materials stay local.
+/interview_materials/
+
+# Public docs are allowlisted; reports, reviews, screenshots, logs and handoffs
+# remain local. Add new public guides here deliberately.
+/ROADMAP.md
+/docs/*
+!/docs/ARCHITECTURE.md
+!/docs/CONFIGURATION.md
+!/docs/OPERATIONS.md
+!/docs/DEVELOPMENT.md
+
+# Frozen protocols and source fixtures are inputs to experiment tools/tests,
+# not intermediate feedback or run results. Preserve their original bytes.
+!/docs/refactor/
+/docs/refactor/*
+!/docs/refactor/SCIFACT_ANSWER_PROTOCOL.md
+!/docs/refactor/SCIFACT_FALLBACK_PROTOCOL.md
+!/docs/refactor/SCIFACT_GENERATION_PILOT_PROTOCOL.md
+!/docs/refactor/SCIFACT_SIX_METRICS_PROTOCOL.md
+!/docs/refactor/baseline/
+/docs/refactor/baseline/*
+!/docs/refactor/baseline/source-manifest.json
+!/docs/refactor/baseline/source.tar.gz

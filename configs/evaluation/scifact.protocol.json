@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "protocol": "scifact-document-evaluation-v1",
+  "dataset": "beir-scifact",
+  "default_split": "development",
+  "test_scoring_requires_explicit_acknowledgement": true,
+  "index_input": "title + two newlines + abstract; strip outer whitespace",
+  "chunker": "app.services.chunking.chunk_text",
+  "tokenizer": "cl100k_base; not a provider token limit or billing counter",
+  "chunk_size": 800,
+  "chunk_overlap": 120,
+  "document_aggregation": "keep first ranked chunk per original dataset document_id, before document cutoff",
+  "result_order": "supplied chunk ranking order; preserve ties; no cross-role score comparison",
+  "qrels_scope": "original document-level positive relevance; never label all chunks relevant",
+  "metrics": ["nDCG@10", "Recall@10", "Recall@100", "MRR@10"],
+  "ndcg_gain": "linear relevance grade, not exponential",
+  "unjudged_gain": 0,
+  "macro_denominator": "all queries in selected split, including empty rankings",
+  "retrieval_depth_requirement": "Report unique documents returned; 100 chunks do not guarantee 100 documents. Backend collector depth/adaptive expansion remains to be selected and verified before real retrieval.",
+  "backend_status": "offline chunk manifest and explicit ID mapping only; no index, DDL or embeddings created",
+  "model_execution_authorized": false,
+  "raw_data_redistribution_authorized": false
+}

@@ -1,0 +1,19 @@
+# Disposable integration DB only. No development .env, volume or DB is reused.
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: tracerag_test
+      POSTGRES_PASSWORD: local_test_only
+      POSTGRES_DB: tracerag_application_test
+    ports:
+      - "127.0.0.1:55439:5432"
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U tracerag_test -d tracerag_application_test
+      interval: 2s
+      timeout: 3s
+      retries: 30

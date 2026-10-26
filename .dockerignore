@@ -1,0 +1,25 @@
+# Whitelist build inputs. Never send credentials, documents, DB dumps or runs.
+**
+!Dockerfile
+!.python-version
+!pyproject.toml
+!uv.lock
+!README.md
+!app/
+!app/**
+!scripts/
+!scripts/**
+!configs/
+!configs/**
+!deploy/
+!deploy/application-schema.sql
+!deploy/schema-manifest.json
+!deploy/restore-quarantine.sql
+!.test-cache/
+!.test-cache/tiktoken/
+!.test-cache/tiktoken/9b5ad71b2ce5302211f9c61530b329a4922fc6a4
+**/__pycache__/**
+**/*.pyc
+**/.env*
+**/*.dump
+**/*.dump.sha256

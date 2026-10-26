@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "reviewer": "main_assistant_AI_nonblind",
+  "method": "Explicit primary gap taxonomy over frozen context-sufficiency reasons; structural corpus/chunk checks are separate from semantic judgments. Labels are not independent scientific gold or whole-corpus absence findings.",
+  "categories": {
+    "statistic_denominator": "缺目标数量、比例、分母或排名；背景数字不能替代",
+    "temporal_scope": "调查年份、随访窗口或未来期限不匹配",
+    "target_intervention": "目标实体、操作或实验条件未建立",
+    "missing_result_protocol": "缺目标结果、配方、检测依据或分类信息",
+    "compound_claim": "完整命题含多个必要分句，当前只支持部分",
+    "causal_endpoint": "联合干预、因果方向或目标终点不能由现有结果推出"
+  },
+  "cases": [
+    {"query_id": "6", "category": "statistic_denominator", "missing_conditions": ["六个月以下SIDS死亡的构成比例"], "note": "年龄范围和同床风险不是死亡年龄分布。"},
+    {"query_id": "9", "category": "temporal_scope", "missing_conditions": ["2001年停药政策状态"], "note": "材料报告2000年调查，32%的数值不能无条件移到2001年。"},
+    {"query_id": "11", "category": "target_intervention", "missing_conditions": ["4-PBA处理及ER应激方向的实验"], "note": "WFS1/ER通路背景不等于4-PBA处理证据；仅B属于命中文档但不足的目标分层。"},
+    {"query_id": "19", "category": "statistic_denominator", "missing_conditions": ["线虫7天与1天学习能力之比"], "note": "老化研究的摘要没有5%的定量结果。"},
+    {"query_id": "20", "category": "statistic_denominator", "missing_conditions": ["线虫7天与1天学习能力之比"], "note": "与q19同类材料，改为75%不能补出结果；不是独立研究重复验证。"},
+    {"query_id": "21", "category": "statistic_denominator", "missing_conditions": ["烧伤门急诊患者的住院率"], "note": "70%烧伤面积不是70%患者住院。"},
+    {"query_id": "24", "category": "temporal_scope", "missing_conditions": ["原命题未来进展的时间范围", "应答亚组疾病进展的目标终点和分母"], "note": "74%反应在截止时持续不等于无期限未来进展概率；同文档两chunk不自动算重复。"},
+    {"query_id": "25", "category": "statistic_denominator", "missing_conditions": ["六个月以下SIDS死亡的构成比例"], "note": "与q6共享材料；风险比、发生率下降不能补出90%的年龄分布。"},
+    {"query_id": "35", "category": "causal_endpoint", "missing_conditions": ["B12单独缺乏的效应方向"], "note": "联合叶酸/B6/B12干预不能拆成单独B12缺乏；仅A在目标分层，未发送的第二个qrel需单列。"},
+    {"query_id": "43", "category": "statistic_denominator", "missing_conditions": ["目标离体HPC感染的低比例及其分母"], "note": "some感染不能推出低比例，其他细胞或人群比例不可替代。"},
+    {"query_id": "44", "category": "missing_result_protocol", "missing_conditions": ["HNF4A突变者14岁糖尿病风险结果"], "note": "本地目标文档仅含围产期研究背景；不能称整个语料没有结果。"},
+    {"query_id": "45", "category": "missing_result_protocol", "missing_conditions": ["HNF4A突变者14岁糖尿病风险结果"], "note": "与q44同材料及缺口；MODY背景不是14岁风险证据。"},
+    {"query_id": "62", "category": "target_intervention", "missing_conditions": ["ATF4作为ER应激标记的目标证据"], "note": "实际top4未提供ATF4；候选中出现ATF4只作为可恢复性线索，不自动改充分性。"},
+    {"query_id": "74", "category": "target_intervention", "missing_conditions": ["H. pylori活性尿素酶的完整亚基组成"], "note": "HpUreI通道六聚体、单个UreA或其他物种结果均不足。"},
+    {"query_id": "80", "category": "target_intervention", "missing_conditions": ["急性KRAS消除操作", "severe生长效应的范围"], "note": "A缺直接操作；B原判未定，不能把新增siRNA结果强记为充分或仍确定不足。"},
+    {"query_id": "82", "category": "missing_result_protocol", "missing_conditions": ["BMP4/activin A/CHIR99021/SU504目标配方"], "note": "chemically defined不列药物名称，不自动修正SU504。"},
+    {"query_id": "89", "category": "compound_claim", "missing_conditions": ["胎肝前体来源"], "note": "卵黄囊和出生前建立有据；Kupffer驻留肝脏不是胎肝来源。"},
+    {"query_id": "90", "category": "compound_claim", "missing_conditions": ["胎肝前体来源"], "note": "与q89相同必要分句缺口，不以外部常识补齐。"},
+    {"query_id": "96", "category": "statistic_denominator", "missing_conditions": ["阿尔及利亚或各国医师存量组成排名"], "note": "来源国增量、训练或出生分母不等于存量最大组成；不靠外部地理知识反驳。"},
+    {"query_id": "104", "category": "target_intervention", "missing_conditions": ["急性MI机械循环支持的疗效比较"], "note": "MSC间充质干细胞不能静默替代mechanical circulatory support；无显著差异也非等效。"},
+    {"query_id": "126", "category": "statistic_denominator", "missing_conditions": ["英国HTLV1全国感染人数"], "note": "疾病病例和临床队列不能反推250000的感染人数。"},
+    {"query_id": "134", "category": "compound_claim", "missing_conditions": ["依从性评估收益", "依从性评估与常规结局测量的比较"], "note": "一侧收益有限不证明另一侧更优；过程留存关联不是评估策略比较。"},
+    {"query_id": "160", "category": "missing_result_protocol", "missing_conditions": ["CSF培养阳性用于细菌脑膜炎诊断的依据"], "note": "生化指标或其他病种CSF不是目标培养证据。"},
+    {"query_id": "161", "category": "missing_result_protocol", "missing_conditions": ["Qβ与MS2的Leviviridae分类关系"], "note": "MS2结构、ssRNA或壳体形态不直接建立两病毒分类。"},
+    {"query_id": "164", "category": "causal_endpoint", "missing_conditions": ["减重手术后结直肠癌亚型发病率"], "note": "总癌症无关联不回答特定亚型；其他癌症材料不能替代手术比较。"},
+    {"query_id": "165", "category": "causal_endpoint", "missing_conditions": ["减重手术对绝经后乳腺癌发病率的效应"], "note": "肥胖相关性不能自动变成减重手术的干预效应。"}
+  ],
+  "candidate_probe": {
+    "query_id": "62",
+    "literal": "atf4",
+    "purpose": "Exploratory literal scan of the saved B ranking only; presence is not sufficiency and absence is not semantic absence.",
+    "reviewed_document_id": "25510546",
+    "reviewed_quote": "Time-dependent increases in mRNA levels for activating transcription factor 4 (Atf4)",
+    "interpretation": "候选存在MIN6细胞中ATF4随棕榈酸应激变化的直接窄范围线索，不能单凭它断言general marker完整命题已充分。"
+  }
+}

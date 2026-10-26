@@ -1,0 +1,26 @@
+---
+# Isolated from docker-compose.yml and the application's pgdata.
+name: budgetrag-baseline
+services:
+  baseline-db:
+    image: >-
+      pgvector/pgvector:0.8.1-pg16@sha256:33198da2828a14c30348d2ccb4750833d5ed9a44c88d840a0e523d7417120337
+    environment:
+      POSTGRES_USER: budgetrag_baseline
+      POSTGRES_PASSWORD: baseline-local-only
+      POSTGRES_DB: budgetrag_baseline
+    ports:
+      - "127.0.0.1:55432:5432"
+    volumes:
+      - baseline_pgdata:/var/lib/postgresql/data
+      - ./scripts/sql/baseline_guard.sql:/docker-entrypoint-initdb.d/10-baseline-guard.sql:ro
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U budgetrag_baseline -d budgetrag_baseline
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    restart: "no"
+volumes:
+  baseline_pgdata:

@@ -1,0 +1,1 @@
+Scientists observed liver cells in a controlled experiment. Methods and observations are limited to the reported experimental conditions. This fixture contains deliberately long evidence so that the browser test can verify the final text is not truncated to a 240-character preview. This is not a scientific conclusion. END_EVIDENCE <img src=x onerror="window.__injected=1">

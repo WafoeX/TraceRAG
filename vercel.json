@@ -1,0 +1,13 @@
+{
+  "builds": [
+    {
+      "src": "api/index.py",
+      "use": "@vercel/python",
+      "config": { "includeFiles": "app/**" }
+    }
+  ],
+  "routes": [
+    { "handle": "filesystem" },
+    { "src": "/(.*)", "dest": "api/index.py" }
+  ]
+}

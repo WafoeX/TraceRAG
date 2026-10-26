@@ -1,0 +1,105 @@
+{
+  "schema_version": 2,
+  "ledger_currency": "CNY",
+  "status": "SCREENSHOT_PRICES_RECORDED_LIMITS_USAGE_UNVERIFIED",
+  "observed_on": "2026-10-19",
+  "evidence": {
+    "kind": "user_provided_console_screenshots",
+    "location": "Current conversation: three SiliconFlow model-detail screenshots",
+    "price_page_reference": "https://siliconflow.cn/pricing",
+    "note": "Transcribed from supplied images, not an authenticated API/billing audit. Original images remain in the conversation."
+  },
+  "pricing_policy": "Reserve and estimate at the higher uncached input/output rates; no time or cache discount; CNY only, no FX.",
+  "price_cards": {
+    "BAAI/bge-m3": {
+      "currency": "CNY",
+      "raw_unit": "per_thousand_tokens",
+      "raw_input_rate": "0.000000",
+      "input_per_million": "0",
+      "dense_dimension": 1024,
+      "context_label": "8K",
+      "description_max_sequence_tokens": 8192
+    },
+    "BAAI/bge-reranker-v2-m3": {
+      "currency": "CNY",
+      "raw_unit": "per_thousand_tokens",
+      "raw_input_rate": "0.000000",
+      "input_per_million": "0",
+      "context_label": "8K",
+      "account_rate_limits_observed": {"tier": "L0", "rpm": 2000, "tpm": 500000},
+      "rate_limit_note": "Account-specific screenshot; not a universal guarantee or application rate-limit setting."
+    },
+    "deepseek-ai/DeepSeek-V4.1-Flash": {
+      "currency": "CNY",
+      "context_label": "1M",
+      "time_zone": null,
+      "time_zone_note": "The supplied image does not show the time zone; no automatic time-based selection.",
+      "tiers": [
+        {
+          "time_window_label": "2点~8点",
+          "raw_unit": "per_thousand_tokens",
+          "raw_cached_input_rate": "0.000020",
+          "raw_input_rate": "0.001000",
+          "raw_output_rate": "0.004000",
+          "unit": "per_million_tokens",
+          "cached_input_rate": "0.02",
+          "input_rate": "1",
+          "output_rate": "4"
+        },
+        {
+          "time_window_label": "0点~2点/8点~24点",
+          "raw_unit": "per_thousand_tokens",
+          "raw_cached_input_rate": "0.000040",
+          "raw_input_rate": "0.002000",
+          "raw_output_rate": "0.008000",
+          "unit": "per_million_tokens",
+          "cached_input_rate": "0.04",
+          "input_rate": "2",
+          "output_rate": "8"
+        }
+      ]
+    }
+  },
+  "roles": {
+    "embedding": {
+      "model": "BAAI/bge-m3", "price_verified_from_screenshot": true, "verified": false,
+      "currency": "CNY", "unit": "per_million_tokens",
+      "input_rate": "0", "output_rate": "0",
+      "input_token_upper_bound": null, "output_token_upper_bound": 0,
+      "request_byte_limit": null,
+      "source": "user-provided SiliconFlow BAAI/bge-m3 console screenshot",
+      "checked_at": "2026-10-19",
+      "limits_source": null, "usage_source": null
+    },
+    "llm_rerank": {
+      "model": "deepseek-ai/DeepSeek-V4.1-Flash", "price_verified_from_screenshot": true, "verified": false,
+      "currency": "CNY", "unit": "per_million_tokens",
+      "input_rate": "2", "output_rate": "8",
+      "input_token_upper_bound": null, "output_token_upper_bound": null,
+      "request_byte_limit": null,
+      "source": "user-provided SiliconFlow DeepSeek-V4.1-Flash console screenshot; higher uncached tier",
+      "checked_at": "2026-10-19",
+      "limits_source": null, "usage_source": null
+    },
+    "generation": {
+      "model": "deepseek-ai/DeepSeek-V4.1-Flash", "price_verified_from_screenshot": true, "verified": false,
+      "currency": "CNY", "unit": "per_million_tokens",
+      "input_rate": "2", "output_rate": "8",
+      "input_token_upper_bound": null, "output_token_upper_bound": null,
+      "request_byte_limit": null,
+      "source": "user-provided SiliconFlow DeepSeek-V4.1-Flash console screenshot; higher uncached tier",
+      "checked_at": "2026-10-19",
+      "limits_source": null, "usage_source": null
+    },
+    "native_rerank": {
+      "model": "BAAI/bge-reranker-v2-m3", "price_verified_from_screenshot": true, "verified": false,
+      "currency": "CNY", "unit": "per_million_tokens",
+      "input_rate": "0", "output_rate": "0",
+      "input_token_upper_bound": null, "output_token_upper_bound": 0,
+      "request_byte_limit": null,
+      "source": "user-provided SiliconFlow BAAI/bge-reranker-v2-m3 console screenshot",
+      "checked_at": "2026-10-19",
+      "limits_source": null, "usage_source": null
+    }
+  }
+}

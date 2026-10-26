@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "provider": null,
+  "base_url": null,
+  "embedding_model": null,
+  "chat_model": null,
+  "embedding_dim": null,
+  "chunk_size": 800,
+  "chunk_overlap": 120,
+  "retrieval_candidates": 10,
+  "top_k": 5,
+  "pricing": null,
+  "pricing_and_bounds_source": null
+}

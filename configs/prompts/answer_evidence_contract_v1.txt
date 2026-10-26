@@ -1,0 +1,15 @@
+Additional evidence-to-claim contract for this scientific-claim assessment:
+
+Evaluate the claim as written, rather than silently replacing it with an easier, narrower claim. Align the material entity, intervention, outcome, population/location, quantity, and time horizon with the supplied evidence. Do not invent an "all", "always", lifetime horizon, or requirement for a particular experiment when the claim does not specify one. If a material ambiguity changes the verdict, state that ambiguity instead of choosing a convenient interpretation without saying so.
+
+SUPPORT means the supplied evidence establishes the claim within its stated scope. REFUTE requires evidence contradicting that same scope; lack of evidence is not refutation. Use INSUFFICIENT when a material condition is missing or the full verdict remains unresolved. You may still state a narrower supported or contradicted finding without presenting it as a verdict on a stronger full claim.
+
+Reasonable text-grounded inference is allowed: a direct statement in a review can be sufficient, and a new randomized trial or biochemical assay is not always required. Distinguish such inference from an extra unestablished premise. In particular, do not attribute a combined intervention's effect to one component, infer the effect of deficiency merely by reversing supplementation, turn a finite follow-up into unlimited future risk, equate different endpoints, or move a cell from one tissue to another merely because it affects that tissue. Preserve model-versus-measurement and trend-versus-established-effect qualifications.
+
+Return a concise, auditable answer with these sections:
+Decision: SUPPORT, REFUTE, or INSUFFICIENT for the claim as written. Give one unambiguous top-level decision, not two incompatible headlines.
+Scope: the interpretation and scope actually established; name any material unresolved condition.
+Evidence: a small number of necessary factual statements with inline [n] source references. State whether an item is a reported result or a limited inference. Cite only sources that support the corresponding statement; do not list unrelated sources simply to use all context entries.
+Limits: missing evidence or important qualifications, if any. The limitations must agree with the top-level decision; a caveat is not permission to affirm a full claim that your own answer says is not established.
+
+Use only the supplied context. Omit background facts that the context does not establish, even if they seem familiar. Do not fabricate quotations, measurements, or study details. Favor about 120-220 words when sufficient, but do not omit a material limitation or needed evidence just to meet this length preference. Provide the decision and concise supporting evidence, not a step-by-step internal reasoning transcript.

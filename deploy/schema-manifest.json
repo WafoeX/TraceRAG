@@ -1,0 +1,680 @@
+{
+  "app_users": {
+    "columns": {
+      "created_at": {
+        "nullable": false,
+        "type": "TIMESTAMP WITH TIME ZONE"
+      },
+      "id": {
+        "nullable": false,
+        "type": "INTEGER"
+      },
+      "password_hash": {
+        "nullable": false,
+        "type": "VARCHAR(256)"
+      },
+      "username": {
+        "nullable": false,
+        "type": "VARCHAR(64)"
+      }
+    },
+    "fks": [],
+    "pk": [
+      "id"
+    ]
+  },
+  "application_budget_accounts": {
+    "columns": {
+      "blocked": {
+        "nullable": false,
+        "type": "BOOLEAN"
+      },
+      "held_cny": {
+        "nullable": false,
+        "type": "NUMERIC(30, 12)"
+      },
+      "key": {
+        "nullable": false,
+        "type": "VARCHAR(64)"
+      },
+      "limit_cny": {
+        "nullable": false,
+        "type": "NUMERIC(30, 12)"
+      },
+      "spent_cny": {
+        "nullable": false,
+        "type": "NUMERIC(30, 12)"
+      },
+      "user_id": {
+        "nullable": true,
+        "type": "INTEGER"
+      }
+    },
+    "fks": [
+      {
+        "columns": [
+          "user_id"
+        ],
+        "ondelete": null,
+        "remote": [
+          "id"
+        ],
+        "table": "app_users"
+      }
+    ],
+    "pk": [
+      "key"
+    ]
+  },
+  "application_budget_events": {
+    "columns": {
+      "action": {
+        "nullable": false,
+        "type": "VARCHAR(32)"
+      },
+      "amount_cny": {
+        "nullable": true,
+        "type": "NUMERIC(30, 12)"
+      },
+      "created_at": {
+        "nullable": false,
+        "type": "TIMESTAMP WITH TIME ZONE"
+      },
+      "id": {
+        "nullable": false,
+        "type": "VARCHAR(36)"
+      },
+      "reason": {
+        "nullable": false,
+        "type": "VARCHAR(512)"
+      },
+      "reservation_id": {
+        "nullable": true,
+        "type": "VARCHAR(36)"
+      },
+      "scope": {
+        "nullable": false,
+        "type": "VARCHAR(64)"
+      }
+    },
+    "fks": [
+      {
+        "columns": [
+          "reservation_id"
+        ],
+        "ondelete": null,
+        "remote": [
+          "id"
+        ],
+        "table": "application_budget_reservations"
+      }
+    ],
+    "pk": [
+      "id"
+    ]
+  },
+  "application_budget_reservations": {
+    "columns": {
+      "created_at": {
+        "nullable": false,
+        "type": "TIMESTAMP WITH TIME ZONE"
+      },
+      "estimated_cny": {
+        "nullable": true,
+        "type": "NUMERIC(30, 12)"
+      },
+      "id": {
+        "nullable": false,
+        "type": "VARCHAR(36)"
+      },
+      "model": {
+        "nullable": false,
+        "type": "VARCHAR(256)"
+      },
+      "profile_json": {
+        "nullable": false,
+        "type": "TEXT"
+      },
+      "reason": {
+        "nullable": true,
+        "type": "VARCHAR(64)"
+      },
+      "reserved_cny": {
+        "nullable": false,
+        "type": "NUMERIC(30, 12)"
+      },
+      "role": {
+        "nullable": false,
+        "type": "VARCHAR(32)"
+      },
+      "status": {
+        "nullable": false,
+        "type": "VARCHAR(16)"
+      },
+      "user_id": {
+        "nullable": false,
+        "type": "INTEGER"
+      }
+    },
+    "fks": [
+      {
+        "columns": [
+          "user_id"
+        ],
+        "ondelete": null,
+        "remote": [
+          "id"
+        ],
+        "table": "app_users"
+      }
+    ],
+    "pk": [
+      "id"
+    ]
+  },
+  "application_recovery_state": {
+    "columns": {
+      "id": {
+        "nullable": false,
+        "type": "INTEGER"
+      },
+      "quarantined": {
+        "nullable": false,
+        "type": "BOOLEAN"
+      },
+      "reviewed_at": {
+        "nullable": true,
+        "type": "TIMESTAMP WITH TIME ZONE"
+      }
+    },
+    "fks": [],
+    "pk": [
+      "id"
+    ]
+  },
+  "application_request_feedback": {
+    "columns": {
+      "citation_number": {
+        "nullable": true,
+        "type": "INTEGER"
+      },
+      "outdated": {
+        "nullable": false,
+        "type": "BOOLEAN"
+      },
+      "trace_id": {
+        "nullable": false,
+        "type": "VARCHAR(36)"
+      },
+      "unhelpful": {
+        "nullable": false,
+        "type": "BOOLEAN"
+      },
+      "unsupported_citation": {
+        "nullable": false,
+        "type": "BOOLEAN"
+      },
+      "updated_at": {
+        "nullable": false,
+        "type": "TIMESTAMP WITH TIME ZONE"
+      }
+    },
+    "fks": [
+      {
+        "columns": [
+          "trace_id"
+        ],
+        "ondelete": "CASCADE",
+        "remote": [
+          "id"
+        ],
+        "table": "application_request_traces"
+      }
+    ],
+    "pk": [
+      "trace_id"
+    ]
+  },
+  "application_request_traces": {
+    "columns": {
+      "content_consent": {
+        "nullable": false,
+        "type": "BOOLEAN"
+      },
+      "created_at": {
+        "nullable": false,
+        "type": "TIMESTAMP WITH TIME ZONE"
+      },
+      "expires_at": {
+        "nullable": false,
+        "type": "TIMESTAMP WITH TIME ZONE"
+      },
+      "id": {
+        "nullable": false,
+        "type": "VARCHAR(36)"
+      },
+      "knowledge_base_id": {
+        "nullable": false,
+        "type": "INTEGER"
+      },
+      "metadata_json": {
+        "nullable": false,
+        "type": "TEXT"
+      },
+      "snapshot_json": {
+        "nullable": true,
+        "type": "TEXT"
+      },
+      "user_id": {
+        "nullable": false,
+        "type": "INTEGER"
+      }
+    },
+    "fks": [
+      {
+        "columns": [
+          "knowledge_base_id"
+        ],
+        "ondelete": "CASCADE",
+        "remote": [
+          "id"
+        ],
+        "table": "knowledge_bases"
+      },
+      {
+        "columns": [
+          "user_id"
+        ],
+        "ondelete": "CASCADE",
+        "remote": [
+          "id"
+        ],
+        "table": "app_users"
+      }
+    ],
+    "pk": [
+      "id"
+    ]
+  },
+  "auth_login_windows": {
+    "columns": {
+      "attempts": {
+        "nullable": false,
+        "type": "INTEGER"
+      },
+      "key": {
+        "nullable": false,
+        "type": "VARCHAR(100)"
+      }
+    },
+    "fks": [],
+    "pk": [
+      "key"
+    ]
+  },
+  "auth_sessions": {
+    "columns": {
+      "csrf_token": {
+        "nullable": false,
+        "type": "VARCHAR(64)"
+      },
+      "expires_at": {
+        "nullable": false,
+        "type": "TIMESTAMP WITH TIME ZONE"
+      },
+      "token_hash": {
+        "nullable": false,
+        "type": "VARCHAR(64)"
+      },
+      "user_id": {
+        "nullable": false,
+        "type": "INTEGER"
+      }
+    },
+    "fks": [
+      {
+        "columns": [
+          "user_id"
+        ],
+        "ondelete": "CASCADE",
+        "remote": [
+          "id"
+        ],
+        "table": "app_users"
+      }
+    ],
+    "pk": [
+      "token_hash"
+    ]
+  },
+  "chunk_locations": {
+    "columns": {
+      "chunk_id": {
+        "nullable": false,
+        "type": "INTEGER"
+      },
+      "page_number": {
+        "nullable": false,
+        "type": "INTEGER"
+      }
+    },
+    "fks": [
+      {
+        "columns": [
+          "chunk_id"
+        ],
+        "ondelete": "CASCADE",
+        "remote": [
+          "id"
+        ],
+        "table": "chunks"
+      }
+    ],
+    "pk": [
+      "chunk_id"
+    ]
+  },
+  "chunks": {
+    "columns": {
+      "chunk_index": {
+        "nullable": false,
+        "type": "INTEGER"
+      },
+      "content": {
+        "nullable": false,
+        "type": "TEXT"
+      },
+      "document_id": {
+        "nullable": false,
+        "type": "INTEGER"
+      },
+      "embedding": {
+        "nullable": false,
+        "type": "VECTOR(__EMBEDDING_DIM__)"
+      },
+      "id": {
+        "nullable": false,
+        "type": "INTEGER"
+      }
+    },
+    "fks": [
+      {
+        "columns": [
+          "document_id"
+        ],
+        "ondelete": "CASCADE",
+        "remote": [
+          "id"
+        ],
+        "table": "documents"
+      }
+    ],
+    "pk": [
+      "id"
+    ]
+  },
+  "document_versions": {
+    "columns": {
+      "active": {
+        "nullable": false,
+        "type": "BOOLEAN"
+      },
+      "created_at": {
+        "nullable": false,
+        "type": "TIMESTAMP WITH TIME ZONE"
+      },
+      "document_id": {
+        "nullable": false,
+        "type": "INTEGER"
+      },
+      "file_hash": {
+        "nullable": true,
+        "type": "VARCHAR(64)"
+      },
+      "filename": {
+        "nullable": true,
+        "type": "VARCHAR(512)"
+      },
+      "logical_id": {
+        "nullable": false,
+        "type": "INTEGER"
+      },
+      "number": {
+        "nullable": false,
+        "type": "INTEGER"
+      },
+      "raw_content": {
+        "nullable": true,
+        "type": "BYTEA"
+      }
+    },
+    "fks": [
+      {
+        "columns": [
+          "document_id"
+        ],
+        "ondelete": "CASCADE",
+        "remote": [
+          "id"
+        ],
+        "table": "documents"
+      },
+      {
+        "columns": [
+          "logical_id"
+        ],
+        "ondelete": "CASCADE",
+        "remote": [
+          "id"
+        ],
+        "table": "logical_documents"
+      }
+    ],
+    "pk": [
+      "document_id"
+    ]
+  },
+  "documents": {
+    "columns": {
+      "created_at": {
+        "nullable": false,
+        "type": "TIMESTAMP WITH TIME ZONE"
+      },
+      "id": {
+        "nullable": false,
+        "type": "INTEGER"
+      },
+      "source": {
+        "nullable": true,
+        "type": "VARCHAR(1024)"
+      },
+      "title": {
+        "nullable": false,
+        "type": "VARCHAR(512)"
+      }
+    },
+    "fks": [],
+    "pk": [
+      "id"
+    ]
+  },
+  "ingestion_jobs": {
+    "columns": {
+      "attempts": {
+        "nullable": false,
+        "type": "INTEGER"
+      },
+      "base_document_id": {
+        "nullable": true,
+        "type": "INTEGER"
+      },
+      "created_at": {
+        "nullable": false,
+        "type": "TIMESTAMP WITH TIME ZONE"
+      },
+      "dedup_key": {
+        "nullable": false,
+        "type": "VARCHAR(160)"
+      },
+      "document_id": {
+        "nullable": true,
+        "type": "INTEGER"
+      },
+      "error_code": {
+        "nullable": true,
+        "type": "VARCHAR(64)"
+      },
+      "file_hash": {
+        "nullable": false,
+        "type": "VARCHAR(64)"
+      },
+      "filename": {
+        "nullable": false,
+        "type": "VARCHAR(512)"
+      },
+      "id": {
+        "nullable": false,
+        "type": "INTEGER"
+      },
+      "knowledge_base_id": {
+        "nullable": true,
+        "type": "INTEGER"
+      },
+      "lease_token": {
+        "nullable": true,
+        "type": "VARCHAR(64)"
+      },
+      "lease_until": {
+        "nullable": true,
+        "type": "TIMESTAMP WITH TIME ZONE"
+      },
+      "payload": {
+        "nullable": true,
+        "type": "BYTEA"
+      },
+      "state": {
+        "nullable": false,
+        "type": "VARCHAR(20)"
+      },
+      "target_logical_id": {
+        "nullable": true,
+        "type": "INTEGER"
+      },
+      "title": {
+        "nullable": false,
+        "type": "VARCHAR(512)"
+      }
+    },
+    "fks": [
+      {
+        "columns": [
+          "knowledge_base_id"
+        ],
+        "ondelete": null,
+        "remote": [
+          "id"
+        ],
+        "table": "knowledge_bases"
+      },
+      {
+        "columns": [
+          "document_id"
+        ],
+        "ondelete": null,
+        "remote": [
+          "id"
+        ],
+        "table": "documents"
+      },
+      {
+        "columns": [
+          "base_document_id"
+        ],
+        "ondelete": "CASCADE",
+        "remote": [
+          "id"
+        ],
+        "table": "documents"
+      },
+      {
+        "columns": [
+          "target_logical_id"
+        ],
+        "ondelete": "CASCADE",
+        "remote": [
+          "id"
+        ],
+        "table": "logical_documents"
+      }
+    ],
+    "pk": [
+      "id"
+    ]
+  },
+  "knowledge_bases": {
+    "columns": {
+      "created_at": {
+        "nullable": false,
+        "type": "TIMESTAMP WITH TIME ZONE"
+      },
+      "id": {
+        "nullable": false,
+        "type": "INTEGER"
+      },
+      "name": {
+        "nullable": false,
+        "type": "VARCHAR(200)"
+      },
+      "owner_id": {
+        "nullable": false,
+        "type": "INTEGER"
+      }
+    },
+    "fks": [
+      {
+        "columns": [
+          "owner_id"
+        ],
+        "ondelete": null,
+        "remote": [
+          "id"
+        ],
+        "table": "app_users"
+      }
+    ],
+    "pk": [
+      "id"
+    ]
+  },
+  "logical_documents": {
+    "columns": {
+      "created_at": {
+        "nullable": false,
+        "type": "TIMESTAMP WITH TIME ZONE"
+      },
+      "id": {
+        "nullable": false,
+        "type": "INTEGER"
+      },
+      "knowledge_base_id": {
+        "nullable": true,
+        "type": "INTEGER"
+      }
+    },
+    "fks": [
+      {
+        "columns": [
+          "knowledge_base_id"
+        ],
+        "ondelete": null,
+        "remote": [
+          "id"
+        ],
+        "table": "knowledge_bases"
+      }
+    ],
+    "pk": [
+      "id"
+    ]
+  }
+}

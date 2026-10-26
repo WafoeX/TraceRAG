@@ -1,0 +1,82 @@
+[
+  {
+    "id": "smoke-01",
+    "question": "How many paid vacation days do full-time employees get?",
+    "answer": "20 days of paid vacation"
+  },
+  {
+    "id": "smoke-02",
+    "question": "How much parental leave do new parents get?",
+    "answer": "16 weeks of fully paid parental leave"
+  },
+  {
+    "id": "smoke-03",
+    "question": "What is the annual home-office equipment budget?",
+    "answer": "$1,000 annual"
+  },
+  {
+    "id": "smoke-04",
+    "question": "How soon must a security incident be reported?",
+    "answer": "within one hour of discovery"
+  },
+  {
+    "id": "smoke-05",
+    "question": "What are the core collaboration hours?",
+    "answer": "10:00 AM to"
+  },
+  {
+    "id": "smoke-06",
+    "question": "What plans does Acme Cloud offer?",
+    "answer": "three plans"
+  },
+  {
+    "id": "smoke-07",
+    "question": "Can I export my data, and in what format?",
+    "answer": "JSON or CSV"
+  },
+  {
+    "id": "smoke-08",
+    "question": "When do engineers join the on-call rotation?",
+    "answer": "after their first month"
+  },
+  {
+    "id": "smoke-09",
+    "question": "What git workflow does the engineering team use?",
+    "answer": "trunk-based development"
+  },
+  {
+    "id": "smoke-10",
+    "question": "How quickly must you acknowledge a page when on-call?",
+    "answer": "within 15 minutes"
+  },
+  {
+    "id": "smoke-11",
+    "question": "What encryption standard protects data at rest?",
+    "answer": "AES-256"
+  },
+  {
+    "id": "smoke-12",
+    "question": "What HTTP status code signals you exceeded the rate limit?",
+    "answer": "429"
+  },
+  {
+    "id": "smoke-13",
+    "question": "Which payment networks are supported for bank transfer?",
+    "answer": "SEPA"
+  },
+  {
+    "id": "smoke-14",
+    "question": "What command installs the local toolchain?",
+    "answer": "make bootstrap"
+  },
+  {
+    "id": "smoke-15",
+    "question": "What is the free-plan API request limit per minute?",
+    "answer": "60 requests per minute"
+  },
+  {
+    "id": "smoke-16",
+    "question": "How many days do customers have for a no-questions-asked refund?",
+    "answer": "within 30 days"
+  }
+]
